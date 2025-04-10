@@ -1,58 +1,35 @@
 import pygame
 import sys
 
-# تهيئة مكتبة Pygame
+# تهيئة Pygame
 pygame.init()
 
-# إعداد حجم الشاشة
+# إعداد الشاشة
 WIDTH, HEIGHT = 800, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Zoro Jump")
+pygame.display.set_caption("Zorro Jump Game")
 
-# تحديد الألوان
-WHITE = (255, 255, 255)
-GREEN = (0, 200, 0)
+# تحميل صورة الخلفية
+background = pygame.image.load("background.jpg")
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 
-# إعداد اللاعب (مؤقتًا مربع أخضر)
-player = pygame.Rect(100, 300, 50, 50)
-velocity = 0
-is_jumping = False
-gravity = 0.8
-ground_y = 350
+# الألوان
+BROWN = (139, 69, 19)
 
-# التحكم في سرعة التحديث
+# المتغيرات
 clock = pygame.time.Clock()
-
-# حلقة اللعبة
+ground_y = 350
 running = True
+
 while running:
-    screen.fill(WHITE)  # الخلفية
+    screen.blit(background, (0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        # القفز بزر المسافة أو الضغط بالماوس
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            if not is_jumping:
-                velocity = -15
-                is_jumping = True
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if not is_jumping:
-                velocity = -15
-                is_jumping = True
-
-    # تطبيق القفز
-    if is_jumping:
-        player.y += int(velocity)
-        velocity += gravity
-        if player.y >= ground_y - player.height:
-            player.y = ground_y - player.height
-            is_jumping = False
-
-    # رسم الأرض واللاعب
-    pygame.draw.rect(screen, GREEN, player)
-    pygame.draw.rect(screen, (139, 69, 19), (0, ground_y, WIDTH, HEIGHT - ground_y))  # الأرض
+    # رسم الأرض
+    pygame.draw.rect(screen, BROWN, (0, ground_y, WIDTH, HEIGHT - ground_y))
 
     pygame.display.flip()
     clock.tick(60)
