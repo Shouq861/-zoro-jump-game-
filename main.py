@@ -33,57 +33,74 @@ player_velocity = 0
 gravity = 0.8
 ground_y = 300
 
-clock = pygame.time.Clock()
-running = True
-
-while running:
-    screen.blit(background, (0, 0))
-    screen.blit(player_image, player_rect)
-# نقاط
+# إعداد النقاط
 score = 0
 font = pygame.font.SysFont(None, 36)
 
+# إعداد الساعة
 clock = pygame.time.Clock()
 running = True
 game_over = False
 scored = False
 
+def reset_game():
+    """إعادة تعيين المتغيرات إلى قيمها الافتراضية"""
+    global player_rect, obstacle_rect, is_jumping, player_velocity, score, game_over
+    player_rect.topleft = (100, 300)
+    obstacle_rect.x = WIDTH
+    is_jumping = False
+    player_velocity = 0
+    score = 0
+    game_over = False
+
 while running:
-    screen.blit(background, (0, 0))
+    if game_over:
+        # عرض خلفية اللعبة الأصلية
+        screen.blit(background, (0, 0))  # الخلفية الأصلية
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        # عرض النص "Game Over"
+        text = font.render("Game Over", True, (0, 0, 0))
+        screen.blit(text, (WIDTH // 2 - 70, HEIGHT // 2 - 90))  # في أعلى الزر
 
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            if not is_jumping:
-                is_jumping = True
-                player_velocity = -15
+        # عرض زر إعادة اللعبة باللون الأبيض
+        restart_button = pygame.Rect(WIDTH // 2 - 80, HEIGHT // 2 - 40, 160, 40)  # زر أصغر
+        pygame.draw.rect(screen, (255, 255, 255), restart_button)
+        restart_text = font.render("Restart", True, (0, 0, 0))
+        screen.blit(restart_text, (WIDTH // 2 - 40, HEIGHT // 2 - 35))
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if not is_jumping:
-                is_jumping = True
-                player_velocity = -15
+        # عرض عدد النقاط
+        score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+        screen.blit(score_text, (WIDTH // 2 - 45, HEIGHT // 2 + 20))
 
-    if is_jumping:
-        player_rect.y += int(player_velocity)
-        player_velocity += gravity
-        if player_rect.y >= ground_y:
-            player_rect.y = ground_y
-            is_jumping = False
-            
-        if not game_over:
+        pygame.display.flip()
+
+        # التعامل مع الضغط على زر إعادة اللعبة
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if restart_button.collidepoint(event.pos):
+                    reset_game()  # إعادة تعيين اللعبة
+                    break
+    else:
+        # إذا كانت اللعبة مستمرة
+        screen.blit(background, (0, 0))
+
+        # التعامل مع الأحداث
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                if not is_jumping:
+                if not is_jumping and not game_over:  # لا يمكن القفز إذا كانت اللعبة انتهت
                     is_jumping = True
                     player_velocity = -15
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if not is_jumping:
+                if not is_jumping and not game_over:  # لا يمكن القفز إذا كانت اللعبة انتهت
                     is_jumping = True
                     player_velocity = -15
 
-    if not game_over:
         # القفز
         if is_jumping:
             player_rect.y += int(player_velocity)
@@ -108,25 +125,19 @@ while running:
         if player_rect.colliderect(obstacle_rect):
             game_over = True
 
-    # عرض الأرض
-    pygame.draw.rect(screen, (139, 69, 19), (0, 350, WIDTH, 50))
+        # عرض الأرض
+        pygame.draw.rect(screen, (139, 69, 19), (0, 350, WIDTH, 50))
 
-    # عرض اللاعب والعقبة
-    screen.blit(player_image, player_rect)
-    screen.blit(obstacle_image, obstacle_rect)
+        # عرض اللاعب والعقبة
+        screen.blit(player_image, player_rect)
+        screen.blit(obstacle_image, obstacle_rect)
 
-    # عرض النقاط
-    score_text = font.render(f"Score: {score}", True, (0, 0, 0))
-    screen.blit(score_text, (10, 10))
+        # عرض النقاط
+        score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+        screen.blit(score_text, (10, 10))
 
-    # عرض رسالة النهاية
-    if game_over:
-        text = font.render("Game Over!", True, (0, 0, 0))
-        screen.blit(text, (WIDTH // 2 - 100, HEIGHT // 2))
-
-
-    pygame.display.flip()
-    clock.tick(60)
+        pygame.display.flip()
+        clock.tick(60)
 
 pygame.quit()
 sys.exit()
